@@ -35,7 +35,10 @@ jobs:
           set -x
           sudo mkdir -p /Users/Shared
           cp -R $GITHUB_WORKSPACE /Users/Shared/
-          mv /Users/Shared/$(basename $GITHUB_WORKSPACE) /Users/Shared/nokagram-ios
+          BASENAME=$(basename $GITHUB_WORKSPACE)
+          if [ "$BASENAME" != "nokagram-ios" ]; then
+            mv /Users/Shared/$BASENAME /Users/Shared/nokagram-ios
+          fi
 
       - name: Build the App.
         run: |
