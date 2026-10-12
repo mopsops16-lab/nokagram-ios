@@ -94,9 +94,9 @@ def _platform_prerequisites(
     """
     platform_type_attr = getattr(apple_common.platform_type, platform_type_string)
     # multi_arch_platform was removed from the Apple fragment in Bazel 9;
-    # every other call site in this fork already uses single_arch_platform
-    # (this build targets a single arch: --ios_multi_cpus=arm64).
-    platform = apple_fragment.single_arch_platform(platform_type_attr)
+    # single_arch_platform is the platform object itself (same pattern as
+    # metals.bzl in this fork; this build targets a single arch anyway).
+    platform = apple_fragment.single_arch_platform
 
     if explicit_minimum_os:
         minimum_os = explicit_minimum_os
