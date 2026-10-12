@@ -1,0 +1,597 @@
+"""Tests for various features that aren't large enough to need their own tests file."""
+
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load(
+    "//test/rules:action_command_line_test.bzl",
+    "make_action_command_line_test_rule",
+)
+load(
+    "//test/rules:action_inputs_test.bzl",
+    "make_action_inputs_test_rule",
+)
+load(
+    "//test/rules:explicit_swift_module_map_test.bzl",
+    "make_explicit_swift_module_map_test_rule",
+)
+
+default_test = make_action_command_line_test_rule()
+
+# Test with enabled `swift.add_target_name_to_output` feature
+default_with_target_name_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "swift.add_target_name_to_output",
+        ],
+    },
+)
+
+default_opt_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:compilation_mode": "opt",
+    },
+)
+
+opt_no_wmo_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:compilation_mode": "opt",
+        "//command_line_option:features": [
+            "-swift.opt_uses_wmo",
+        ],
+    },
+)
+
+disabled_file_prefix_map_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "-swift.file_prefix_map",
+        ],
+    },
+)
+
+unsupported_developer_dir_file_prefix_map_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "-swift._supports_developer_dir",
+        ],
+    },
+)
+
+use_global_index_store_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "swift.use_global_index_store",
+        ],
+    },
+)
+
+use_global_index_store_index_while_building_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "swift.index_while_building",
+            "swift.use_global_index_store",
+        ],
+    },
+)
+
+disable_swift_sandbox_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "swift.disable_swift_sandbox",
+        ],
+    },
+)
+
+explicit_swift_module_map_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "swift.use_explicit_swift_module_map",
+        ],
+    },
+)
+
+explicit_swift_module_map_inputs_test = make_action_inputs_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "swift.use_explicit_swift_module_map",
+        ],
+    },
+)
+
+EXPLICIT_SWIFT_MODULE_MAP_METADATA_CONFIG_SETTINGS = {
+    "//command_line_option:features": [
+        "swift.use_explicit_swift_module_map",
+        "swift.emit_swiftdoc",
+        "swift.emit_swiftsourceinfo",
+        "swift.split_derived_files_generation",
+    ],
+}
+
+explicit_swift_module_map_metadata_test = make_explicit_swift_module_map_test_rule(
+    config_settings = EXPLICIT_SWIFT_MODULE_MAP_METADATA_CONFIG_SETTINGS,
+)
+
+explicit_swift_module_map_metadata_inputs_test = make_action_inputs_test_rule(
+    config_settings = EXPLICIT_SWIFT_MODULE_MAP_METADATA_CONFIG_SETTINGS,
+)
+
+EXPLICIT_SWIFT_MODULE_MAP_NO_METADATA_CONFIG_SETTINGS = {
+    "//command_line_option:features": [
+        "swift.use_explicit_swift_module_map",
+        "-swift.emit_swiftdoc",
+        "-swift.emit_swiftsourceinfo",
+    ],
+}
+
+explicit_swift_module_map_no_metadata_test = make_explicit_swift_module_map_test_rule(
+    config_settings = EXPLICIT_SWIFT_MODULE_MAP_NO_METADATA_CONFIG_SETTINGS,
+)
+
+explicit_swift_module_map_no_metadata_inputs_test = make_action_inputs_test_rule(
+    config_settings = EXPLICIT_SWIFT_MODULE_MAP_NO_METADATA_CONFIG_SETTINGS,
+)
+
+EXPLICIT_SWIFT_MODULE_MAP_DOC_ONLY_CONFIG_SETTINGS = {
+    "//command_line_option:features": [
+        "swift.use_explicit_swift_module_map",
+        "swift.emit_swiftdoc",
+        "-swift.emit_swiftsourceinfo",
+    ],
+}
+
+explicit_swift_module_map_doc_only_test = make_explicit_swift_module_map_test_rule(
+    config_settings = EXPLICIT_SWIFT_MODULE_MAP_DOC_ONLY_CONFIG_SETTINGS,
+)
+
+explicit_swift_module_map_doc_only_inputs_test = make_action_inputs_test_rule(
+    config_settings = EXPLICIT_SWIFT_MODULE_MAP_DOC_ONLY_CONFIG_SETTINGS,
+)
+
+EXPLICIT_SWIFT_MODULE_MAP_SOURCE_INFO_ONLY_CONFIG_SETTINGS = {
+    "//command_line_option:features": [
+        "swift.use_explicit_swift_module_map",
+        "-swift.emit_swiftdoc",
+        "swift.emit_swiftsourceinfo",
+    ],
+}
+
+explicit_swift_module_map_source_info_only_test = make_explicit_swift_module_map_test_rule(
+    config_settings = EXPLICIT_SWIFT_MODULE_MAP_SOURCE_INFO_ONLY_CONFIG_SETTINGS,
+)
+
+explicit_swift_module_map_source_info_only_inputs_test = make_action_inputs_test_rule(
+    config_settings = EXPLICIT_SWIFT_MODULE_MAP_SOURCE_INFO_ONLY_CONFIG_SETTINGS,
+)
+
+# Test with enabled `swift.add_target_name_to_output` feature
+explicit_swift_module_map_with_target_name_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "swift.use_explicit_swift_module_map",
+            "swift.add_target_name_to_output",
+        ],
+    },
+)
+
+disable_objc_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "-objc_link_flag",
+            "-swift.objc_link_flag",
+        ],
+    },
+)
+
+ios_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:platforms": [
+            str(Label("@apple_support//platforms:ios_arm64")),
+        ],
+    },
+)
+
+embedded_test = make_action_command_line_test_rule(
+    config_settings = {
+        "//command_line_option:features": [
+            "swift.enable_embedded",
+        ],
+    },
+)
+
+def features_test_suite(name, tags = []):
+    """Test suite for various features.
+
+    Args:
+        name: The base name to be used in things created by this macro.
+        tags: Additional tags to apply to each test.
+    """
+    all_tags = [name] + tags
+
+    default_test(
+        name = "{}_default_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-emit-object",
+            "-I$(BIN_DIR)/test/fixtures/basic",
+            "-Xwrapped-swift=-file-prefix-pwd-is-dot",
+        ],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    default_with_target_name_test(
+        name = "{}_default_with_target_name_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-emit-object",
+            "-I$(BIN_DIR)/test/fixtures/basic/first",
+            "-Xwrapped-swift=-file-prefix-pwd-is-dot",
+        ],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    disabled_file_prefix_map_test(
+        name = "{}_file_prefix_map_test".format(name),
+        tags = all_tags,
+        not_expected_argv = [
+            "-Xwrapped-swift=-file-prefix-pwd-is-dot",
+        ],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/debug_settings:simple",
+    )
+
+    default_test(
+        name = "{}_file_prefix_xcode_remap_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-Xwrapped-swift=-file-prefix-pwd-is-dot",
+            "-file-prefix-map",
+            "__BAZEL_XCODE_DEVELOPER_DIR__=/PLACEHOLDER_DEVELOPER_DIR",
+        ],
+        target_compatible_with = ["@platforms//os:macos"],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/debug_settings:simple",
+    )
+
+    unsupported_developer_dir_file_prefix_map_test(
+        name = "{}_file_prefix_xcode_remap_unsupported_developer_dir_test".format(name),
+        tags = all_tags,
+        not_expected_argv = [
+            "__BAZEL_XCODE_DEVELOPER_DIR__=/PLACEHOLDER_DEVELOPER_DIR",
+        ],
+        target_compatible_with = ["@platforms//os:macos"],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/debug_settings:simple",
+    )
+
+    use_global_index_store_test(
+        name = "{}_use_global_index_store_test".format(name),
+        tags = all_tags,
+        not_expected_argv = [
+            "-Xwrapped-swift=-global-index-store-import-path=",
+        ],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/debug_settings:simple",
+    )
+
+    use_global_index_store_index_while_building_test(
+        name = "{}_use_global_index_store_index_while_building_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-Xwrapped-swift=-global-index-store-import-path=bazel-out/_global_index_store",
+        ],
+        mnemonic = "SwiftCompile",
+        target_compatible_with = ["@platforms//os:macos"],
+        target_under_test = "//test/fixtures/debug_settings:simple",
+    )
+
+    disable_swift_sandbox_test(
+        name = "{}_disable_swift_sandbox_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-disable-sandbox",
+        ],
+        mnemonic = "SwiftCompile",
+        target_compatible_with = ["@platforms//os:macos"],
+        target_under_test = "//test/fixtures/debug_settings:simple",
+    )
+
+    disable_swift_sandbox_test(
+        name = "{}_disable_swift_sandbox_module_interface_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-disable-sandbox",
+        ],
+        mnemonic = "SwiftCompileModuleInterface",
+        target_compatible_with = ["@platforms//os:macos"],
+        target_under_test = "//test/fixtures/module_interface:toy_module",
+    )
+
+    default_opt_test(
+        name = "{}_default_opt_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-emit-object",
+            "-O",
+            "-whole-module-optimization",
+            "-num-threads 12",
+        ],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/debug_settings:simple",
+    )
+
+    opt_no_wmo_test(
+        name = "{}_opt_no_wmo_test".format(name),
+        tags = all_tags,
+        expected_argv = ["-emit-object", "-O"],
+        not_expected_argv = ["-whole-module-optimization"],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/debug_settings:simple",
+    )
+
+    explicit_swift_module_map_test(
+        name = "{}_explicit_swift_module_map_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-Xfrontend -explicit-swift-module-map-file -Xfrontend $(BIN_DIR)/test/fixtures/basic/second.swift-explicit-module-map.json",
+        ],
+        not_expected_argv = [
+            "-I$(BIN_DIR)/test/fixtures/basic",
+        ],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_inputs_test(
+        name = "{}_explicit_swift_module_map_inputs_test".format(name),
+        tags = all_tags,
+        expected_inputs = [
+            "first.swiftmodule",
+            "second.swift-explicit-module-map.json",
+        ],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_metadata_test(
+        name = "{}_explicit_swift_module_map_metadata_test".format(name),
+        tags = all_tags,
+        module_map = "test/fixtures/basic/second.swift-explicit-module-map.json",
+        module_name = "first",
+        expected_mapping = {
+            "docPath": "test/fixtures/basic/first.swiftdoc",
+            "modulePath": "test/fixtures/basic/first.swiftmodule",
+            "sourceInfoPath": "test/fixtures/basic/first.swiftsourceinfo",
+        },
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_metadata_inputs_test(
+        name = "{}_explicit_swift_module_map_metadata_inputs_test".format(name),
+        tags = all_tags,
+        mnemonic = "SwiftCompile",
+        expected_inputs = [
+            "first.swiftmodule",
+            "second.swift-explicit-module-map.json",
+            "first.swiftdoc",
+            "first.swiftsourceinfo",
+        ],
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_metadata_inputs_test(
+        name = "{}_explicit_swift_module_map_metadata_derive_files_inputs_test".format(name),
+        tags = all_tags,
+        mnemonic = "SwiftDeriveFiles",
+        expected_inputs = [
+            "first.swiftmodule",
+            "second.swift-explicit-module-map.json",
+            "first.swiftdoc",
+            "first.swiftsourceinfo",
+        ],
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_no_metadata_test(
+        name = "{}_explicit_swift_module_map_no_metadata_test".format(name),
+        tags = all_tags,
+        module_map = "test/fixtures/basic/second.swift-explicit-module-map.json",
+        module_name = "first",
+        expected_mapping = {
+            "modulePath": "test/fixtures/basic/first.swiftmodule",
+        },
+        not_expected_keys = ["docPath", "sourceInfoPath"],
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_no_metadata_inputs_test(
+        name = "{}_explicit_swift_module_map_no_metadata_inputs_test".format(name),
+        tags = all_tags,
+        mnemonic = "SwiftCompile",
+        expected_inputs = [
+            "first.swiftmodule",
+            "second.swift-explicit-module-map.json",
+        ],
+        not_expected_inputs = ["first.swiftdoc", "first.swiftsourceinfo"],
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_doc_only_test(
+        name = "{}_explicit_swift_module_map_doc_only_test".format(name),
+        tags = all_tags,
+        module_map = "test/fixtures/basic/second.swift-explicit-module-map.json",
+        module_name = "first",
+        expected_mapping = {
+            "docPath": "test/fixtures/basic/first.swiftdoc",
+            "modulePath": "test/fixtures/basic/first.swiftmodule",
+        },
+        not_expected_keys = ["sourceInfoPath"],
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_doc_only_inputs_test(
+        name = "{}_explicit_swift_module_map_doc_only_inputs_test".format(name),
+        tags = all_tags,
+        mnemonic = "SwiftCompile",
+        expected_inputs = [
+            "first.swiftmodule",
+            "second.swift-explicit-module-map.json",
+            "first.swiftdoc",
+        ],
+        not_expected_inputs = ["first.swiftsourceinfo"],
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_source_info_only_test(
+        name = "{}_explicit_swift_module_map_source_info_only_test".format(name),
+        tags = all_tags,
+        module_map = "test/fixtures/basic/second.swift-explicit-module-map.json",
+        module_name = "first",
+        expected_mapping = {
+            "modulePath": "test/fixtures/basic/first.swiftmodule",
+            "sourceInfoPath": "test/fixtures/basic/first.swiftsourceinfo",
+        },
+        not_expected_keys = ["docPath"],
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    explicit_swift_module_map_source_info_only_inputs_test(
+        name = "{}_explicit_swift_module_map_source_info_only_inputs_test".format(name),
+        tags = all_tags,
+        mnemonic = "SwiftCompile",
+        expected_inputs = [
+            "first.swiftmodule",
+            "second.swift-explicit-module-map.json",
+            "first.swiftsourceinfo",
+        ],
+        not_expected_inputs = ["first.swiftdoc"],
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    build_test(
+        name = "{}_explicit_swift_module_map_build_test".format(name),
+        tags = all_tags,
+        targets = [
+            "//test/fixtures/basic:second_explicit_swift_module_map_transitioned",
+        ],
+    )
+
+    explicit_swift_module_map_with_target_name_test(
+        name = "{}_explicit_swift_module_map_with_target_name_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-Xfrontend -explicit-swift-module-map-file -Xfrontend $(BIN_DIR)/test/fixtures/basic/second.swift-explicit-module-map.json",
+        ],
+        not_expected_argv = [
+            "-I$(BIN_DIR)/test/fixtures/basic/second",
+        ],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    default_test(
+        name = "{}_default_link_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-L/usr/lib/swift",
+            "-ObjC",
+            "-Wl,-rpath,/usr/lib/swift",
+        ],
+        mnemonic = "CppLink",
+        target_under_test = "//test/fixtures/linking:bin",
+        target_compatible_with = ["@platforms//os:macos"],
+    )
+
+    disable_objc_test(
+        name = "{}_disable_objc_link_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-L/usr/lib/swift",
+            "-Wl,-rpath,/usr/lib/swift",
+        ],
+        not_expected_argv = ["-ObjC"],
+        mnemonic = "CppLink",
+        target_under_test = "//test/fixtures/linking:bin",
+        target_compatible_with = ["@platforms//os:macos"],
+    )
+
+    default_test(
+        name = "{}_default_cc_link_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-L/usr/lib/swift",
+            "-ObjC",
+            "-Wl,-rpath,/usr/lib/swift",
+        ],
+        mnemonic = "CppLink",
+        target_under_test = "//test/fixtures/linking:cc_bin",
+        target_compatible_with = ["@platforms//os:macos"],
+    )
+
+    disable_objc_test(
+        name = "{}_disable_cc_link_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-L/usr/lib/swift",
+            "-Wl,-rpath,/usr/lib/swift",
+        ],
+        not_expected_argv = ["-ObjC"],
+        mnemonic = "CppLink",
+        target_under_test = "//test/fixtures/linking:cc_bin",
+        target_compatible_with = ["@platforms//os:macos"],
+    )
+
+    default_test(
+        name = "{}_swift_test_rpath_roots_link_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-Wl,-rpath,/private/var/select/developer_dir/Platforms/MacOSX.platform/Developer/usr/lib",
+            "-Wl,-rpath,/private/var/select/developer_dir/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+            "-Wl,-rpath,/private/var/select/developer_dir/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+            "-Wl,-rpath,/var/db/xcode_select_link/Platforms/MacOSX.platform/Developer/usr/lib",
+            "-Wl,-rpath,/var/db/xcode_select_link/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+            "-Wl,-rpath,/var/db/xcode_select_link/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        ],
+        mnemonic = "CppLink",
+        target_under_test = "//test/fixtures/xctest_runner:PassingUnitTests",
+        target_compatible_with = ["@platforms//os:macos"],
+    )
+
+    ios_test(
+        name = "{}_ios_link_omits_developer_dir_symlink_rpaths_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-Wl,-rpath,/usr/lib/swift",
+        ],
+        not_expected_argv = [
+            "-Wl,-rpath,/private/var/select/developer_dir/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/iphoneos",
+            "-Wl,-rpath,/var/db/xcode_select_link/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/iphoneos",
+        ],
+        mnemonic = "CppLink",
+        target_under_test = "//test/fixtures/linking:bin",
+        target_compatible_with = ["@platforms//os:macos"],
+    )
+
+    build_test(
+        name = "{}_global_index_store_builds".format(name),
+        tags = all_tags,
+        targets = [
+            "//test/fixtures/global_index_store:simple",
+        ],
+    )
+
+    embedded_test(
+        name = "{}_embedded_test".format(name),
+        tags = all_tags,
+        expected_argv = [
+            "-enable-experimental-feature",
+            "Embedded",
+        ],
+        mnemonic = "SwiftCompile",
+        target_under_test = "//test/fixtures/basic:second",
+    )
+
+    native.test_suite(
+        name = name,
+        tags = all_tags,
+    )

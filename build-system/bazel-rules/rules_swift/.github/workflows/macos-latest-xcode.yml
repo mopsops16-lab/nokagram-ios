@@ -1,0 +1,50 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: macos-26
+    timeout-minutes: 120
+    concurrency:
+      group: macos-latest-xcode-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+
+          sudo xcode-select -s /Applications/Xcode_26.4.app
+          xcode-select -p
+          xcodebuild -version
+
+      - name: Test
+        run: |
+          set -euo pipefail
+
+          developer_dir=$(xcode-select -p)
+
+          # Opt tests into this job with the latest-xcode tag.
+          DEVELOPER_DIR="$developer_dir" bazel test \
+            --bes_backend=grpcs://remote.buildbuddy.io \
+            --bes_results_url=https://app.buildbuddy.io/invocation/ \
+            --execution_log_compact_file=execution_log.binpb.zst \
+            --remote_cache=grpcs://app.buildbuddy.io \
+            --remote_cache_compression \
+            --test_output=errors \
+            --build_tests_only \
+            --test_tag_filters=latest-xcode \
+            //...
