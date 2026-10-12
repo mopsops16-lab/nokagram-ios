@@ -18,11 +18,15 @@ load(
     "@bazel_skylib//lib:dicts.bzl",
     "dicts",
 )
-load("@bazel_tools//tools/cpp:toolchain_utils.bzl", "use_cpp_toolchain")
+load("@rules_cc//cc:find_cc_toolchain.bzl", "use_cc_toolchain")
 load(
     "//apple:providers.bzl",
     "AppleBundleInfo",
     "AppleTestRunnerInfo",
+)
+load(
+    "//apple/internal:apple_toolchains.bzl",
+    "apple_toolchain_utils",
 )
 load(
     "//apple/internal:rule_attrs.bzl",
@@ -76,10 +80,6 @@ AppleTestRunnerInfo provider.
         aspects = [coverage_files_aspect],
         providers = [AppleBundleInfo],
     ),
-    "_apple_coverage_support": attr.label(
-        cfg = config.exec(exec_group = "test"),
-        default = Label("@build_bazel_apple_support//tools:coverage_support"),
-    ),
     "_lcov_merger": attr.label(
         default = configuration_field(
             fragment = "coverage",
@@ -115,7 +115,7 @@ def _create_apple_rule(
         implementation,
         is_executable = False,
         predeclared_outputs = {},
-        toolchains = use_cpp_toolchain(),
+        toolchains = use_cc_toolchain(),
         attrs):
     """Creates an Apple bundling rule with additional control of the set of rule attributes.
 
@@ -140,17 +140,15 @@ def _create_apple_rule(
 
     return rule(
         implementation = implementation,
-        attrs = dicts.add(
-            rule_attrs.custom_transition_allowlist_attr(),
-            *attrs
-        ),
+        attrs = dicts.add(*attrs),
         cfg = cfg,
         doc = doc,
         exec_compatible_with = [
             "@platforms//os:macos",
         ],
         executable = is_executable,
-        fragments = ["apple", "cpp", "objc", "j2objc"],
+        exec_groups = apple_toolchain_utils.use_apple_exec_group_toolchain(),
+        fragments = ["apple", "cpp", "objc"],
         toolchains = toolchains,
         **extra_args
     )
@@ -180,14 +178,18 @@ def _create_apple_test_rule(*, doc, implementation, platform_type):
             *ide_visible_attrs
         ),
         doc = doc,
-        exec_groups = {
-            "test": exec_group(
-                exec_compatible_with = [
-                    "@platforms//os:macos",
-                ],
-            ),
-        },
+        exec_groups = dicts.add(
+            {
+                "test": exec_group(
+                    exec_compatible_with = [
+                        "@platforms//os:macos",
+                    ],
+                ),
+            },
+            apple_toolchain_utils.use_apple_exec_group_toolchain(),
+        ),
         test = True,
+        toolchains = use_cc_toolchain(),
     )
 
 rule_factory = struct(

@@ -15,7 +15,6 @@ package(default_visibility = ["//visibility:public"])
 exports_files([
     "usr/bin/llvm-objcopy",
     "usr/bin/llvm-objdump",
-    "usr/bin/llvm-strip",
 ])
 
 ### Tools referenced by Swift SDK cross-compilation repositories. ###
@@ -40,7 +39,6 @@ filegroup(
             "usr/lib/swift/host/**",
             "usr/lib/swift/linux/**",
             "usr/lib/swift/macosx/**",
-            "usr/lib/swift/swiftToCxx/**",
         ],
         allow_empty = True,
     ),
@@ -83,19 +81,12 @@ cc_tool(
 cc_tool(
     name = "clang",
     src = "usr/bin/clang",
-    data = [":swift_sdk_compiler_inputs"],
+    data = [":swift_sdk_linker_inputs"],
     tags = ["manual"],
 )
 
 cc_tool(
     name = "clang++",
-    src = "usr/bin/clang++",
-    data = [":swift_sdk_compiler_inputs"],
-    tags = ["manual"],
-)
-
-cc_tool(
-    name = "clang++_linker",
     src = "usr/bin/clang++",
     data = [":swift_sdk_linker_inputs"],
     tags = ["manual"],
@@ -114,12 +105,6 @@ cc_tool(
 )
 
 cc_tool(
-    name = "llvm_strip",
-    src = "usr/bin/llvm-strip",
-    tags = ["manual"],
-)
-
-cc_tool(
     name = "llvm_profdata",
     src = "usr/bin/llvm-profdata",
     tags = ["manual"],
@@ -133,11 +118,11 @@ cc_tool_map(
         "@rules_cc//cc/toolchains/actions:assembly_actions": ":clang",
         "@rules_cc//cc/toolchains/actions:c_compile": ":clang",
         "@rules_cc//cc/toolchains/actions:cpp_compile_actions": ":clang++",
-        "@rules_cc//cc/toolchains/actions:link_actions": ":clang++_linker",
+        "@rules_cc//cc/toolchains/actions:link_actions": ":clang++",
         "@rules_cc//cc/toolchains/actions:llvm_cov": ":llvm_cov",
         "@rules_cc//cc/toolchains/actions:llvm_profdata": ":llvm_profdata",
         "@rules_cc//cc/toolchains/actions:objcopy_embed_data": ":llvm_objcopy",
-        "@rules_cc//cc/toolchains/actions:strip": ":llvm_strip",
+        "@rules_cc//cc/toolchains/actions:strip": ":llvm_objcopy",
     },
 )
 
@@ -147,9 +132,8 @@ cc_sysroot(
         "@rules_cc//cc/toolchains/actions:link_actions",
         "@rules_cc//cc/toolchains/actions:compile_actions",
     ],
-    args = ["--gcc-toolchain={sysroot}/usr"],
-    data = ["@swift_ubuntu{linux_sysroot_version}_arm64_sysroot//:root"],
-    sysroot = "@swift_ubuntu{linux_sysroot_version}_arm64_sysroot//:root",
+    data = ["@swift_ubuntu22.04_aarch64_sysroot//:root"],
+    sysroot = "@swift_ubuntu22.04_aarch64_sysroot//:root",
     tags = ["manual"],
     visibility = ["//visibility:private"],
 )
@@ -168,9 +152,8 @@ cc_sysroot(
         "@rules_cc//cc/toolchains/actions:link_actions",
         "@rules_cc//cc/toolchains/actions:compile_actions",
     ],
-    args = ["--gcc-toolchain={sysroot}/usr"],
-    data = ["@swift_ubuntu{linux_sysroot_version}_amd64_sysroot//:root"],
-    sysroot = "@swift_ubuntu{linux_sysroot_version}_amd64_sysroot//:root",
+    data = ["@swift_ubuntu22.04_sysroot//:root"],
+    sysroot = "@swift_ubuntu22.04_sysroot//:root",
     tags = ["manual"],
     visibility = ["//visibility:private"],
 )

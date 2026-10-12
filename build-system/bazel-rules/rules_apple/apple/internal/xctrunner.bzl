@@ -18,7 +18,7 @@ platform and architectures as the given `tests` bundles.
 """
 
 load(
-    "@build_bazel_apple_support//lib:apple_support.bzl",
+    "@apple_support//lib:apple_support.bzl",
     "apple_support",
 )
 load(
@@ -113,6 +113,7 @@ def _xctrunner_impl(ctx):
     args = ctx.actions.args()
     args.add("--name", ctx.attr.name)
     args.add("--platform", PLATFORM_MAP[platform])
+    args.add("--xcode-version", xcode_config.xcode_version())
     if ctx.attr.verbose:
         args.add("--verbose", ctx.attr.verbose)
 
@@ -186,7 +187,7 @@ load("//apple:xctrunner.bzl", "xctrunner")
 ios_ui_test(
     name = "HelloWorldSwiftUITests",
     minimum_os_version = "15.0",
-    runner = "@build_bazel_rules_apple//apple/testing/default_runner:ios_xctestrun_ordered_runner",
+    runner = "@rules_apple//apple/testing/default_runner:ios_xctestrun_ordered_runner",
     test_host = ":HelloWorldSwift",
     deps = [":UITests"],
 )

@@ -30,7 +30,8 @@ swift_toolchain(
     name = "swift_toolchain_wasm32",
     arch = "wasm32",
     copts = [
-        "-Xwrapped-swift=-resource-dir=" + _RESOURCE_DIR,
+        "-resource-dir",
+        _RESOURCE_DIR,
     ],
     features = [
         "swift.module_map_no_private_headers",
@@ -74,16 +75,6 @@ cc_tool(
     src = "@{toolchain_repo}//:usr/bin/clang",
     data = [
         ":sdk_files",
-        "@{toolchain_repo}//:swift_sdk_compiler_inputs",
-    ],
-    tags = ["manual"],
-)
-
-cc_tool(
-    name = "clang_linker",
-    src = "@{toolchain_repo}//:usr/bin/clang",
-    data = [
-        ":sdk_files",
         "@{toolchain_repo}//:swift_sdk_linker_inputs",
     ],
     tags = ["manual"],
@@ -103,7 +94,7 @@ cc_tool_map(
         "@rules_cc//cc/toolchains/actions:assembly_actions": ":clang",
         "@rules_cc//cc/toolchains/actions:c_compile": ":clang",
         "@rules_cc//cc/toolchains/actions:cpp_compile_actions": ":clang",
-        "@rules_cc//cc/toolchains/actions:link_actions": ":clang_linker",
+        "@rules_cc//cc/toolchains/actions:link_actions": ":clang",
     },
 )
 

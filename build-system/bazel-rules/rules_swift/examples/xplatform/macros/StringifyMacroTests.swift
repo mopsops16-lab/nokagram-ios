@@ -14,6 +14,7 @@
 
 import SwiftSyntax
 import SwiftSyntaxBuilder
+import SwiftSyntaxMacros
 import SwiftSyntaxMacroExpansion
 import StringifyMacroPlugin
 import XCTest

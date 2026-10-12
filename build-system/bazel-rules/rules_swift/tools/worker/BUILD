@@ -1,6 +1,5 @@
 load("@apple_support//rules:universal_binary.bzl", "universal_binary")
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
-load("//test:transitions.bzl", "transition_test")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 
 licenses(["notice"])
 
@@ -29,7 +28,6 @@ cc_library(
         ":worker_protocol",
         "//tools/common:file_system",
         "//tools/common:temp_file",
-        "@nlohmann_json//:json",
     ],
 )
 
@@ -61,10 +59,10 @@ cc_library(
     copts = select({
         "//tools:clang-cl": [
             "-Xclang=-fno-split-cold-code",
-            "/std:c++17",
+            "/std=c++17",
         ],
         "//tools:msvc": [
-            "/std:c++17",
+            "/std=c++17",
         ],
         "//conditions:default": [
             "-std=c++17",
@@ -117,7 +115,7 @@ cc_library(
     data = select({
         "@apple_support//configs:apple": [
             "@rules_swift_index_import_5_8//:index_import",
-            "@rules_swift_index_import_6_4//:index_import",
+            "@rules_swift_index_import_6_1//:index_import",
         ],
         "//conditions:default": [],
     }),
@@ -155,17 +153,9 @@ cc_library(
             "-std=c++17",
         ],
     }),
-    defines = select({
-        "//swift:use_proto_worker_enabled": ["RULES_SWIFT_USE_PROTO_WORKER"],
-        "//conditions:default": [],
-    }),
-    deps = select({
-        "//swift:use_proto_worker_enabled": [
-            "//third_party/bazel_protos:worker_protocol_cc_proto",
-            "@protobuf//:delimited_message_util",
-        ],
-        "//conditions:default": ["@nlohmann_json//:json"],
-    }),
+    deps = [
+        "@nlohmann_json//:json",
+    ],
 )
 
 cc_binary(
@@ -192,40 +182,4 @@ alias(
         "//conditions:default": ":worker",
     }),
     visibility = ["//visibility:public"],
-)
-
-cc_test(
-    name = "worker_protocol_test",
-    size = "small",
-    srcs = ["worker_protocol_test.cc"],
-    copts = select({
-        "//tools:clang-cl": ["/std:c++17"],
-        "//tools:msvc": ["/std:c++17"],
-        "//conditions:default": ["-std=c++17"],
-    }),
-    # Also require the complete worker to compile and link in each configuration.
-    data = [":worker"],
-    tags = ["manual"],
-    deps = [":worker_protocol"] + select({
-        "//swift:use_proto_worker_enabled": [
-            "//third_party/bazel_protos:worker_protocol_cc_proto",
-            "@protobuf",
-            "@protobuf//:delimited_message_util",
-        ],
-        "//conditions:default": ["@nlohmann_json//:json"],
-    }),
-)
-
-transition_test(
-    name = "json_worker_protocol_test",
-    size = "small",
-    target = ":worker_protocol_test",
-    worker_protocol = "json",
-)
-
-transition_test(
-    name = "proto_worker_protocol_test",
-    size = "small",
-    target = ":worker_protocol_test",
-    worker_protocol = "proto",
 )

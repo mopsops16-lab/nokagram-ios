@@ -8,7 +8,7 @@ exports_files(["scan.py"])
 sh_binary(
     name = "scan",
     srcs = ["scan_wrapper.sh"],
-    args = ["$(rootpath :scan.py)"],
+    args = ["$(location :scan.py)"],
     data = ["scan.py"],
 )
 
@@ -20,14 +20,14 @@ bzl_library(
         ":xcode_explicit_module_hub_repo",
         ":xcode_explicit_module_repo",
         ":xcode_locator_repo",
-        "@apple_support//xcode:xcode_configure",
+        "@bazel_tools//tools/osx:xcode_configure.bzl",
     ],
 )
 
 bzl_library(
     name = "xcode_locator_repo",
     srcs = ["xcode_locator_repo.bzl"],
-    deps = ["@apple_support//xcode:xcode_configure"],
+    deps = ["@bazel_tools//tools/osx:xcode_configure.bzl"],
 )
 
 bzl_library(

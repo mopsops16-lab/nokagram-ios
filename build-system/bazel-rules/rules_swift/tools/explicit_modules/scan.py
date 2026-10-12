@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 
-from __future__ import annotations
-
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, TextIO
 import argparse
 import io
 import json
 import os
 import subprocess
 import tempfile
-from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, TextIO
 
 _SDK_CONSTRAINTS = {
     "MacOSX": ["@platforms//os:macos"],
@@ -79,7 +77,7 @@ _TARGETS_PER_SDK = {
     ],
     "iphoneos": [
         ("@platforms//cpu:arm64", "arm64-apple-ios{ver}"),
-        ("@platforms//cpu:arm64e", "arm64e-apple-ios{ver}"),
+        ("@platforms//cpu:arm64e", "arm64-apple-ios{ver}"),
     ],
     "iphonesimulator": [
         ("@platforms//cpu:arm64", "arm64-apple-ios{ver}-simulator"),
@@ -146,7 +144,8 @@ def _canonical_name(name: str, sdk: str, module_type: str) -> str:
 
 
 def _write_labels(out: TextIO, labels: set[str], indent: str = "        ") -> None:
-    out.writelines(f'{indent}":{label}",\n' for label in sorted(labels))
+    for label in sorted(labels):
+        out.write(f'{indent}":{label}",\n')
 
 
 def _get_full_xcode_version(developer_dir: Path) -> str:
@@ -213,9 +212,8 @@ def _write_string_attr(
         return
 
     out.write(f"    {name} = select({{\n")
-    out.writelines(
-        f'        "{cpu}": "{value}",\n' for cpu, value in sorted(values_by_cpu.items())
-    )
+    for cpu, value in sorted(values_by_cpu.items()):
+        out.write(f'        "{cpu}": "{value}",\n')
     out.write("    }),\n")
 
 
@@ -230,7 +228,7 @@ def _write_transition_attrs(
 
 
 def _render_clang_module_groups(
-    modules: list[_Module],
+    modules: list["_Module"],
     clang_only_names: set[str],
     sdk: str,
     sdk_version: str,
@@ -261,14 +259,15 @@ def _render_clang_module_groups(
         out.write("\n")
         out.write("system_module_group(\n")
         out.write(f'    name = "{_canonical_name(module.name, sdk, "alias")}",\n')
-        module._render_deps(
-            out,
-            deps_by_cpu={
-                cpu: {_canonical_name(module.name, sdk, "clang")}
-                | {dep.removesuffix("_clang") for dep in deps}
-                for cpu, deps in module.deps_by_cpu.items()
-            },
-        )
+        out.write("    modules = [\n")
+        deps = [_canonical_name(module.name, sdk, "clang")]
+        for dep in sorted(module.all_dependencies):
+            if dep.endswith("_clang"):
+                deps.append(dep[: -len("_clang")])
+            else:
+                deps.append(dep)
+        _write_labels(out, set(deps))
+        out.write("    ],\n")
         _write_transition_attrs(out, sdk=sdk, sdk_version=sdk_version)
         out.write(")\n")
 
@@ -306,7 +305,7 @@ def _render_implicit_modules_group(
 
 
 def _render_cross_import_overlay_targets(
-    overlays: list[_CrossImportOverlay],
+    overlays: list["_CrossImportOverlay"],
     sdk: str,
     out: TextIO,
 ) -> None:
@@ -376,10 +375,10 @@ class _Module:
     )
 
     def set_deps(self, cpu: str, direct_dependencies: list[tuple[str, str]]) -> None:
-        self.deps_by_cpu[cpu] = {
+        self.deps_by_cpu[cpu] = set(
             _canonical_name(dep_name, self.sdk, dep_type)
             for dep_type, dep_name in direct_dependencies
-        }
+        )
 
     def set_swiftinterface(
         self,
@@ -417,20 +416,13 @@ class _Module:
     def should_compile_swiftinterface(self) -> bool:
         return bool(self.swiftinterface_paths_by_cpu)
 
-    def _render_deps(
-        self,
-        out: TextIO,
-        *,
-        deps_by_cpu: dict[str, set[str]] | None = None,
-    ) -> None:
-        if deps_by_cpu is None:
-            deps_by_cpu = self.deps_by_cpu
-        if not any(deps_by_cpu.values()):
+    def _render_deps(self, out: TextIO) -> None:
+        shared_deps = set(self.all_dependencies)
+        if not shared_deps:
             return
 
-        shared_deps = set.intersection(*deps_by_cpu.values())
-        cpus = sorted(deps_by_cpu)
-        cpu_specific_deps = {cpu: deps_by_cpu[cpu] - shared_deps for cpu in cpus}
+        cpus = sorted(self.deps_by_cpu)
+        cpu_specific_deps = {cpu: self.deps_by_cpu[cpu] - shared_deps for cpu in cpus}
         has_cpu_specific_deps = any(cpu_specific_deps.values())
         if not has_cpu_specific_deps:
             out.write("    modules = [\n")
@@ -692,7 +684,6 @@ def _get_deployment_target(sdk: str, sdk_path: Path) -> str:
 
 def _scan(
     *,
-    developer_dir: Path,
     sdk: str,
     modules: set[str],
     sdk_path: Path,
@@ -723,9 +714,7 @@ def _scan(
             + [f"-F{p}" for p in framework_search_paths]
             + [f"-I{p}" for p in swift_search_paths]
         )
-        env = dict(os.environ)
-        env["DEVELOPER_DIR"] = developer_dir.as_posix()
-        res = subprocess.run(cmd, env=env, capture_output=True, text=True, check=False)
+        res = subprocess.run(cmd, capture_output=True, text=True)
         if res.returncode != 0:
             raise RuntimeError(
                 f"[{sdk}] swiftc -scan-dependencies exited {res.returncode}:\n{res.stderr}"
@@ -747,38 +736,6 @@ def _parse_modulemap_for_modules(modulemap_path: Path) -> set[str]:
     return modules
 
 
-def _resolve_sdk_path(*, developer_dir: Path, sdk: str) -> Path:
-    """Resolves the concrete SDK path for `sdk` within `developer_dir`.
-
-    Xcode's `SDKs` directory normally contains an unversioned `<SDK>.sdk`
-    symlink (for example `MacOSX.sdk`) that points at the versioned SDK, but that
-    symlink is not guaranteed to exist in every Xcode layout. Ask `xcrun` for the
-    resolved path instead.
-    """
-    env = dict(os.environ)
-    env["DEVELOPER_DIR"] = developer_dir.as_posix()
-    try:
-        output = subprocess.check_output(
-            ["xcrun", "--sdk", sdk.lower(), "--show-sdk-path"],
-            env=env,
-            text=True,
-            stderr=subprocess.PIPE,
-        ).strip()
-    except (OSError, subprocess.CalledProcessError) as e:
-        stderr = getattr(e, "stderr", "") or ""
-        raise SystemExit(
-            f"error: could not resolve the {sdk} SDK path via xcrun "
-            f"(DEVELOPER_DIR={developer_dir}): {e}\n{stderr}"
-        )
-
-    if not output:
-        raise SystemExit(
-            f"error: `xcrun --sdk {sdk.lower()} --show-sdk-path` returned an "
-            f"empty path (DEVELOPER_DIR={developer_dir})"
-        )
-    return Path(output)
-
-
 def _discover_all_modules(
     developer_dir: Path,
     developer_dir_symlink_name: str,
@@ -786,7 +743,7 @@ def _discover_all_modules(
     excluded_modules: set[str],
 ) -> tuple[str, set[str]]:
     platform_developer_path = developer_dir / f"Platforms/{sdk}.platform/Developer"
-    sdk_path = _resolve_sdk_path(developer_dir=developer_dir, sdk=sdk)
+    sdk_path = platform_developer_path / f"SDKs/{sdk}.sdk"
     framework_search_paths = [
         platform_developer_path / "Library/Frameworks",
         sdk_path / "System/Library/Frameworks",
@@ -814,7 +771,7 @@ def _discover_all_modules(
             if not x.is_dir():
                 if x.suffix == ".modulemap":
                     if x.stem == "module":
-                        modules |= _parse_modulemap_for_modules(x) - excluded_modules
+                        modules |= _parse_modulemap_for_modules(x)
                     else:
                         modules.add(x.stem)
                 continue
@@ -846,7 +803,6 @@ def _discover_all_modules(
         scan_futures = {
             pool.submit(
                 _scan,
-                developer_dir=developer_dir,
                 sdk=sdk,
                 modules=modules,
                 sdk_path=sdk_path,

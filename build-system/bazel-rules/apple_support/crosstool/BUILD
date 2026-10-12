@@ -11,7 +11,7 @@ exports_files(glob(
 apple_genrule(
     name = "generate_layering_check_modulemap",
     outs = ["layering_check.modulemap"],
-    cmd = "$(execpath generate-modulemap.sh) > $(OUTS)",
+    cmd = "$(location generate-modulemap.sh) > $(OUTS)",
     tags = ["manual"],
     tools = ["generate-modulemap.sh"],
 )
@@ -37,7 +37,7 @@ universal_exec_tool(
 universal_exec_tool(
     name = "exec_libtool",
     srcs = ["libtool.cc"],
-    out = "apple-support-ar-wrapper",
+    out = "libtool",
 )
 
 # TODO: Attempt to remove need for wrapper
@@ -75,16 +75,4 @@ genrule(
 force_exec(
     name = "exec_llvm_cov",
     target = ":exec_llvm_cov.target_config",
-)
-
-genrule(
-    name = "exec_gcov.target_config",
-    srcs = ["gcov.sh"],
-    outs = ["gcov"],
-    cmd = "cp $(SRCS) $(OUTS)",
-)
-
-force_exec(
-    name = "exec_gcov",
-    target = ":exec_gcov.target_config",
 )

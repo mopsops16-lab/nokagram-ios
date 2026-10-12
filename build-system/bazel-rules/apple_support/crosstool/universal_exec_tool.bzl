@@ -11,7 +11,6 @@ def _force_exec_impl(ctx):
         ),
     ]
 
-# TODO: Remove once we drop bazel 8.x and the legacy toolchain
 force_exec = rule(
     attrs = {
         "target": attr.label(
@@ -21,7 +20,6 @@ force_exec = rule(
         ),
     },
     implementation = _force_exec_impl,
-    exec_compatible_with = ["@platforms//os:macos"],
 )
 
 def universal_exec_tool(*, name, out, srcs):

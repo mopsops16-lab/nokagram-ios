@@ -209,9 +209,6 @@ def _mixed_language_library_impl(ctx):
                     compilation_context = cc_info.compilation_context,
                     module_map = extended_module_map,
                     precompiled_module = precompiled_module,
-                    unchecked_include_headers = (
-                        compile_result.clang_module.unchecked_include_headers if compile_result else None
-                    ),
                 ),
                 label = ctx.label,
                 swift = swift_module.swift,
@@ -253,15 +250,6 @@ The non-Swift portion of the mixed language module.
             aspects = [swift_clang_module_aspect],
             doc = "Dependencies of the target being built.",
         ),
-        "module_map": attr.label(
-            allow_single_file = True,
-            doc = "The module map for the module.",
-            mandatory = True,
-        ),
-        "module_name": attr.string(
-            doc = "The name of the module.",
-            mandatory = True,
-        ),
         "swift_target": attr.label(
             doc = """
 The Swift portion of the mixed language module.
@@ -272,6 +260,15 @@ The Swift portion of the mixed language module.
         "umbrella_header": attr.label(
             allow_single_file = True,
             doc = "The umbrella header for the module.",
+            mandatory = True,
+        ),
+        "module_name": attr.string(
+            doc = "The name of the module.",
+            mandatory = True,
+        ),
+        "module_map": attr.label(
+            allow_single_file = True,
+            doc = "The module map for the module.",
             mandatory = True,
         ),
         "_module_map_extender": attr.label(

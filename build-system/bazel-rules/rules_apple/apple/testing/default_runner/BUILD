@@ -1,5 +1,6 @@
 load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
 load("@rules_python//python:py_binary.bzl", "py_binary")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load(
     "//apple/testing/default_runner:ios_test_runner.bzl",
     "ios_test_runner",
@@ -33,6 +34,7 @@ bzl_library(
     visibility = ["//apple:__pkg__"],
     deps = [
         "//apple:providers",
+        "@bazel_skylib//rules:common_settings",
     ],
 )
 
@@ -42,6 +44,8 @@ bzl_library(
     visibility = ["//apple:__pkg__"],
     deps = [
         "//apple:providers",
+        "@apple_support//xcode:providers",
+        "@bazel_skylib//rules:common_settings",
     ],
 )
 
@@ -50,7 +54,7 @@ bzl_library(
     srcs = ["macos_test_runner.bzl"],
     deps = [
         "//apple:providers",
-        "@build_bazel_apple_support//lib:xcode_support",
+        "@apple_support//lib:xcode_support",
     ],
 )
 
@@ -101,7 +105,18 @@ py_binary(
     visibility = ["//visibility:public"],
 )
 
+sh_binary(
+    name = "simulator_cleanup",
+    srcs = ["simulator_cleanup.sh"],
+    visibility = ["//visibility:public"],
+)
+
 ios_test_runner(
+    name = "ios_legacy_runner",
+    visibility = ["//visibility:public"],
+)
+
+ios_xctestrun_runner(
     name = "ios_default_runner",
     # Used by the rule implementations, so it needs to be public; but
     # should be considered an implementation detail of the rules and

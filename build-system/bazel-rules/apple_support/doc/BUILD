@@ -37,10 +37,6 @@ _DOC_SRCS = {
             "xcode_support.is_xcode_at_least_version",
         ],
     ),
-    "xcode_version_at_least": (
-        "//xcode:xcode_version_at_least.bzl",
-        ["xcode_version_at_least"],
-    ),
 }
 
 [
@@ -71,7 +67,6 @@ _DOC_SRCS = {
         deps = [
             "//rules:rules.doc",
             "//xcode:providers",
-            "//xcode:xcode_version_at_least",
         ],
     )
     for [

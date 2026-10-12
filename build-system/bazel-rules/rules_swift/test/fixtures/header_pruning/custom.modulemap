@@ -1,1 +1,0 @@
-module custom { header "custom.h" use test_fixtures_header_pruning_middle export * }

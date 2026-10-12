@@ -48,7 +48,7 @@ as srcs of a swift_library target.
 | :------------- | :------------- | :------------- | :------------- | :------------- |
 | <a id="apple_core_data_model-name"></a>name |  A unique name for this target.   | <a href="https://bazel.build/concepts/labels#target-names">Name</a> | required |  |
 | <a id="apple_core_data_model-srcs"></a>srcs |  -   | <a href="https://bazel.build/concepts/labels">List of labels</a> | required |  |
-| <a id="apple_core_data_model-outs"></a>outs |  A dictionary where the key is the name of a data model and the value is a list of source files expected to be generated from that data model. For example, if srcs contains one data model called "Taxonomy.xcdatamodeld" with a single entity called "Animal," you might provide this value: <pre><code>outs = {&#10;    "Taxonomy": [&#10;        "taxonomy+CoreDataModel.swift",&#10;        "Animal+CoreDataProperties.swift",&#10;    ],&#10;},</code></pre> If one or more files are provided for a data model, the rule will return these files individually as outputs. Otherwise, the rule will return the directory containing the sources for the data model.   | <a href="https://bazel.build/rules/lib/dict">Dictionary: String -> List of strings</a> | optional |  `{}`  |
+| <a id="apple_core_data_model-outs"></a>outs |  A dictionary where the key is the name of a data model and the value is a list of source files expected to be generated from that data model. For example, if srcs contains one data model called "Taxonomy.xcdatamodeld" with a single entity called "Animal," you might provide this value: <pre><code>outs = {&#10;    "Taxonomy": [&#10;        "taxonomy+CoreDataModel.swift",&#10;        "Animal+CoreDataProperties.swift",&#10;    ],&#10;},</code></pre> If one or more files are provided for a data model, the rule will return these files individually as outputs. Otherwise, the rule will return the directory containing the sources for the data model.   | <a href="https://bazel.build/rules/lib/core/dict">Dictionary: String -> List of strings</a> | optional |  `{}`  |
 | <a id="apple_core_data_model-swift_version"></a>swift_version |  Target Swift version for generated classes.   | String | optional |  `""`  |
 
 
@@ -91,7 +91,7 @@ resides. For example, if this target's label is `//my/package:intent`, you can i
 <pre>
 load("@rules_apple//apple:resources.bzl", "apple_metal_library")
 
-apple_metal_library(<a href="#apple_metal_library-name">name</a>, <a href="#apple_metal_library-srcs">srcs</a>, <a href="#apple_metal_library-out">out</a>, <a href="#apple_metal_library-hdrs">hdrs</a>, <a href="#apple_metal_library-copts">copts</a>, <a href="#apple_metal_library-includes">includes</a>)
+apple_metal_library(<a href="#apple_metal_library-name">name</a>, <a href="#apple_metal_library-srcs">srcs</a>, <a href="#apple_metal_library-out">out</a>, <a href="#apple_metal_library-hdrs">hdrs</a>, <a href="#apple_metal_library-copts">copts</a>)
 </pre>
 
 Compiles Metal shader language sources into a Metal library.
@@ -106,7 +106,6 @@ Compiles Metal shader language sources into a Metal library.
 | <a id="apple_metal_library-out"></a>out |  An output `.metallib` filename. Defaults to `default.metallib` if unspecified.   | String | optional |  `"default.metallib"`  |
 | <a id="apple_metal_library-hdrs"></a>hdrs |  A list of headers to make importable when compiling the metal library.   | <a href="https://bazel.build/concepts/labels">List of labels</a> | optional |  `[]`  |
 | <a id="apple_metal_library-copts"></a>copts |  A list of compiler options passed to the `metal` compiler for each source.   | List of strings | optional |  `[]`  |
-| <a id="apple_metal_library-includes"></a>includes |  A list of header search paths.   | List of strings | optional |  `[]`  |
 
 
 <a id="apple_precompiled_resource_bundle"></a>

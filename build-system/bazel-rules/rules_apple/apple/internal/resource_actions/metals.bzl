@@ -15,12 +15,12 @@
 """Metal related actions."""
 
 load(
-    "@bazel_skylib//lib:paths.bzl",
-    "paths",
+    "@apple_support//lib:apple_support.bzl",
+    "apple_support",
 )
 load(
-    "@build_bazel_apple_support//lib:apple_support.bzl",
-    "apple_support",
+    "@bazel_skylib//lib:paths.bzl",
+    "paths",
 )
 
 def _metal_apple_target_triple(platform_prerequisites):
@@ -33,7 +33,7 @@ def _metal_apple_target_triple(platform_prerequisites):
     """
     target_os_version = platform_prerequisites.minimum_os
 
-    platform = platform_prerequisites.apple_fragment.single_arch_platform
+    platform = platform_prerequisites.platform
     platform_string = str(platform.platform_type)
     if platform_string == "macos":
         platform_string = "macosx"

@@ -116,11 +116,11 @@ number (for example, `"9.0"`).
             # the user has not modified it.
             "platform_type": attr.string(default = platform_type),
             "_platform_type": attr.string(default = platform_type),
-            "_allowlist_function_transition": attr.label(
-                default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
-            ),
         },
         doc = doc,
+        exec_groups = {
+            "test": exec_group(),
+        },
         implementation = _apple_build_test_rule_impl,
         test = True,
         cfg = transition_support.apple_rule_transition,

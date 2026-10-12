@@ -21,7 +21,6 @@ x_defaults:
     platform: windows
     build_targets:
       - "//tools/..."
-      - "@swift_argument_parser//:ArgumentParser"
       # Cross-platform Swift examples that exercise the Windows host toolchain:
       # a `swift_binary` executable and a `linkshared` Windows DLL.
       - "//examples/xplatform/hello_world"
@@ -30,8 +29,6 @@ x_defaults:
       # Exercises XCTest discovery, the test runner, and `swift_test` execution
       # on Windows.
       - "//examples/xplatform/xctest"
-      - "//tools/worker:json_worker_protocol_test"
-      - "//tools/worker:proto_worker_protocol_test"
 
 tasks:
   macos_latest:
@@ -71,16 +68,6 @@ tasks:
     name: "Last Green Bazel"
     bazel: last_green
     <<: *linux_common
-
-  ubuntu2404_latest_sysroots:
-    name: "Current LTS Ubuntu sysroots"
-    bazel: latest
-    platform: ubuntu2404
-    test_targets:
-      - "//test/linux_static_stdlib:linux_ubuntu22.04_cc_test"
-      - "//test/linux_static_stdlib:linux_ubuntu22.04_foundation_test"
-      - "//test/linux_static_stdlib:linux_ubuntu24.04_cc_test"
-      - "//test/linux_static_stdlib:linux_ubuntu24.04_foundation_test"
 
   ubuntu2204_latest_non_hermetic:
     name: "Current LTS non-hermetic toolchain"
@@ -135,14 +122,6 @@ tasks:
     test_targets:
       - "doc/..."
 
-  sysroot_lockfiles_check:
-    name: "Sysroot lockfiles up-to-date"
-    platform: ubuntu2204
-    bazel: latest
-    shell_commands:
-      - "bazel run //tools/sysroots:lock"
-      - "git diff --exit-code -- 'swift/internal/extensions/*_sysroot.lock.json' || { echo '::error::Sysroot lockfiles are out of date. Run: bazel run //tools/sysroots:lock'; exit 1; }"
-
   gazelle_check:
     name: "Gazelle up-to-date"
     platform: ubuntu2204
@@ -151,4 +130,4 @@ tasks:
       - "bazel run //doc:gazelle"
       - "git diff --exit-code || { echo '::error::Gazelle-generated BUILD files are out of date. Run: bazel run //doc:gazelle'; exit 1; }"
 
-buildifier: 10.0.1
+buildifier: 8.5.1

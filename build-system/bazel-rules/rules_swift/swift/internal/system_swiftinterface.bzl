@@ -119,10 +119,6 @@ recurse into the SDK module graph from consumers.
             mandatory = False,
             providers = [[CcInfo, SwiftInfo]],
         ),
-        "swiftinterface": attr.label(
-            allow_single_file = [".swiftinterface"],
-            doc = "A declared Swift textual interface file to compile.",
-        ),
         "system_swiftinterface": attr.string(
             doc = """\
 The path to a system Swift textual interface.
@@ -130,6 +126,10 @@ The path to a system Swift textual interface.
 Variables `__BAZEL_XCODE_SDKROOT__` and `__BAZEL_XCODE_DEVELOPER_DIR__` will be
 substituted.
 """,
+        ),
+        "swiftinterface": attr.label(
+            allow_single_file = [".swiftinterface"],
+            doc = "A declared Swift textual interface file to compile.",
         ),
     },
     doc = """\

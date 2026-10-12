@@ -128,9 +128,9 @@
           ],
           "path": null,
           "tool": {
-            "path": "bazel-out/darwin_arm64-opt-exec/bin/crosstool/apple-support-ar-wrapper",
+            "path": "bazel-out/darwin_arm64-opt-exec/bin/crosstool/libtool",
             "root": "bazel-out/darwin_arm64-opt-exec/bin",
-            "short_path": "crosstool/apple-support-ar-wrapper"
+            "short_path": "crosstool/libtool"
           },
           "type_name": "tool",
           "with_features": []
@@ -335,9 +335,9 @@
           ],
           "path": null,
           "tool": {
-            "path": "bazel-out/darwin_arm64-opt-exec/bin/crosstool/apple-support-ar-wrapper",
+            "path": "bazel-out/darwin_arm64-opt-exec/bin/crosstool/libtool",
             "root": "bazel-out/darwin_arm64-opt-exec/bin",
-            "short_path": "crosstool/apple-support-ar-wrapper"
+            "short_path": "crosstool/libtool"
           },
           "type_name": "tool",
           "with_features": []

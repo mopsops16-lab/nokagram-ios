@@ -15,16 +15,15 @@
 """Implementation of Metal shader library rule."""
 
 load(
+    "@apple_support//lib:apple_support.bzl",
+    "apple_support",
+)
+load(
     "@bazel_skylib//lib:dicts.bzl",
     "dicts",
 )
 load(
-    "@build_bazel_apple_support//lib:apple_support.bzl",
-    "apple_support",
-)
-load(
     "//apple/internal:apple_toolchains.bzl",
-    "AppleXPlatToolsToolchainInfo",
     "apple_toolchain_utils",
 )
 load(
@@ -51,7 +50,7 @@ def _metal_apple_target_triple(platform_prerequisites):
     """
     target_os_version = platform_prerequisites.minimum_os
 
-    platform = platform_prerequisites.apple_fragment.single_arch_platform
+    platform = platform_prerequisites.platform
     platform_string = str(platform.platform_type)
     if platform_string == "macos":
         platform_string = "macosx"
@@ -69,7 +68,8 @@ def _apple_metal_library_impl(ctx):
 
     platform_prerequisites = platform_support.platform_prerequisites(
         apple_fragment = ctx.fragments.apple,
-        build_settings = ctx.attr._xplat_toolchain[AppleXPlatToolsToolchainInfo].build_settings,
+        apple_platform_info = platform_support.apple_platform_info_from_rule_ctx(ctx),
+        build_settings = apple_toolchain_utils.get_xplat_toolchain(ctx).build_settings,
         config_vars = ctx.var,
         device_families = None,
         explicit_minimum_deployment_os = None,
@@ -79,7 +79,6 @@ def _apple_metal_library_impl(ctx):
             unsupported_features = ctx.disabled_features,
         ),
         objc_fragment = None,
-        platform_type_string = str(ctx.fragments.apple.single_arch_platform.platform_type),
         uses_swift = False,
         xcode_version_config = ctx.attr._xcode_config[apple_common.XcodeVersionConfig],
     )
@@ -111,7 +110,9 @@ def _apple_metal_library_impl(ctx):
     ]
 
 apple_metal_library = rule(
+    exec_groups = apple_toolchain_utils.use_apple_exec_group_toolchain(),
     attrs = dicts.add(
+        apple_support.platform_constraint_attrs(),
         apple_support.action_required_attrs(),
         apple_toolchain_utils.shared_attrs(),
         {
@@ -124,11 +125,6 @@ A list of compiler options passed to the `metal` compiler for each source.
                 allow_files = [".h"],
                 doc = """\
 A list of headers to make importable when compiling the metal library.
-""",
-            ),
-            "includes": attr.string_list(
-                doc = """\
-A list of header search paths.
 """,
             ),
             "out": attr.string(

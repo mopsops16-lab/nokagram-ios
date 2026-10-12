@@ -5,6 +5,7 @@ load(
     "//test/fixtures/precompiled_modules:cross_platform.bzl",
     "CROSS_PLATFORM_TARGETS",
 )
+load("//test/hermetic_pcm:xcode_version_at_least.bzl", "xcode_version_at_least")
 load(
     "//test/rules:action_command_line_test.bzl",
     "make_action_command_line_test_rule",
@@ -38,6 +39,11 @@ def precompiled_modules_test_suite(name, tags = []):
         tags: Additional tags to apply to each test.
     """
     all_tags = [name] + tags
+
+    xcode_version_at_least(
+        name = "xcode_at_least_26_4",
+        minimum_version = "26.4",
+    )
 
     native.config_setting(
         name = "has_testing_appkit_overlay",
@@ -162,7 +168,7 @@ def precompiled_modules_test_suite(name, tags = []):
 
     _explicit_precompiled_modules_test(
         name = "{}_linking_cross_import_overlay_transitioned_test".format(name),
-        tags = all_tags + ["latest-xcode"],
+        tags = all_tags,
         mnemonic = "SwiftCompile",
         target_under_test = "//test/fixtures/precompiled_modules:linking_cross_import_overlay",
         expected_argv = [
@@ -175,13 +181,6 @@ def precompiled_modules_test_suite(name, tags = []):
             ":has_testing_appkit_overlay": [],
             "//conditions:default": ["@platforms//:incompatible"],
         }),
-    )
-
-    build_test(
-        name = "{}_mixed_embedding_build_test".format(name),
-        targets = ["//test/fixtures/precompiled_modules:mixed_embedding_import_transitioned"],
-        tags = all_tags + ["latest-xcode"],
-        target_compatible_with = ["@platforms//os:macos"],
     )
 
     build_test(

@@ -134,8 +134,6 @@ extension Generator.CalculateXcodeConfigurationBuildSettings {
 
         for (key, platformAndValues) in platformedBuildSettings {
             let isNonInheritableKey = nonInheritableKeys.contains(key)
-            let preservePlatformValues = key == "BAZEL_TARGET_ID" ||
-                key == "BAZEL_COMPILE_TARGET_IDS"
 
             var remainingPlatforms: Set<Platform>
             let setBaseValue: Bool
@@ -173,17 +171,10 @@ extension Generator.CalculateXcodeConfigurationBuildSettings {
                 remainingPlatforms.removeAll()
             }
 
-            // PIF consumers try explicit SDK IDs before similar-platform
-            // fallbacks. Keep every supported platform's ID, including the
-            // base platform and values shared by multiple platforms.
-            if preservePlatformValues {
-                remainingPlatformAndValues = ArraySlice(platformAndValues)
-            }
-
             for (platform, value) in remainingPlatformAndValues {
                 remainingPlatforms.remove(platform)
 
-                guard preservePlatformValues || value != baseValue else {
+                guard value != baseValue else {
                     // Don't set redundant settings
                     continue
                 }
