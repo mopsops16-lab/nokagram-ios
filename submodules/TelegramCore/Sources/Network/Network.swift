@@ -579,7 +579,7 @@ func initializedNetwork(accountId: AccountRecordId, arguments: NetworkInitializa
             }
             
             // NokaGram fork: our DC listens on 2398, not the official 443.
-            let seedPort = 2398
+            let seedPort = UInt16(2398)
             for (id, ips) in seedAddressList {
                 context.setSeedAddressSetForDatacenterWithId(id, seedAddressSet: MTDatacenterAddressSet(addressList: ips.map { MTDatacenterAddress(ip: $0, port: seedPort, preferForMedia: false, restrictToTcp: false, cdn: false, preferForProxy: false, secret: nil) }))
             }
