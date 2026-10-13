@@ -542,16 +542,27 @@ aps_fragment = "" if telegram_aps_environment == "" else """
 <string>{telegram_aps_environment}</string>
 """.format(telegram_aps_environment=telegram_aps_environment)
 
+# App group must match what the provisioning profiles actually carry.
+# build-system/nokagram-codesigning/profiles/*.mobileprovision are the upstream
+# Telegram profiles re-signed with our self-signed cert: GenerateProfiles.py only
+# swaps the certificate, it never rewrites entitlements. Every profile therefore
+# still declares group.ph.telegra.Telegraph, and deriving the group from
+# telegram_bundle_id ("group.com.nokagram.ios") makes ProcessEntitlementsFiles
+# fail with "the profile does not support it". Switch to a real Apple Team and
+# this must be regenerated in the Developer portal instead.
+telegram_app_group_id = "group.ph.telegra.Telegraph"
+
 app_groups_fragment = """
     <key>com.apple.security.application-groups</key>
     <array>
-        <string>group.{telegram_bundle_id}</string>
+        <string>{telegram_app_group_id}</string>
     </array>
     <key>application-identifier</key>
     <string>{telegram_team_id}.{telegram_bundle_id}</string>
 """.format(
     telegram_team_id=telegram_team_id,
-    telegram_bundle_id=telegram_bundle_id
+    telegram_bundle_id=telegram_bundle_id,
+    telegram_app_group_id=telegram_app_group_id
 )
 
 official_communication_notifications_fragment = """
