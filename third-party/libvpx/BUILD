@@ -32,7 +32,6 @@ genrule(
     name = "libvpx_build",
     srcs = [
         "build-libvpx-bazel.sh",
-        "0001-Support-arm64-simulator.patch",
         ":libvpx_sources",
     ],
     cmd_bash = 
@@ -75,15 +74,10 @@ genrule(
     ABS_YASM_DIR="$$(pwd)/$$(dirname $$YASM_DIR)/$$(basename $$YASM_DIR)"
 
     cp $(location :build-libvpx-bazel.sh) "$$BUILD_DIR/"
-    cp $(location :0001-Support-arm64-simulator.patch) "$$BUILD_DIR/"
 
     SOURCE_PATH="third-party/libvpx/libvpx"
 
     cp -R "$$SOURCE_PATH" "$$BUILD_DIR/"
-
-    pushd "$$BUILD_DIR/libvpx"
-    patch -p1 < ../0001-Support-arm64-simulator.patch
-    popd
 
     mkdir -p "$$BUILD_DIR/Public/libvpx"
 
