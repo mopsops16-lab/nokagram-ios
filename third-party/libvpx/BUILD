@@ -78,6 +78,10 @@ genrule(
     SOURCE_PATH="third-party/libvpx/libvpx"
 
     cp -R "$$SOURCE_PATH" "$$BUILD_DIR/"
+    # The vendored libvpx/configure is stored in git with mode 100644
+    # (no exec bit), and cp -R keeps it that way, so the genrule dies with
+    # "configure: Permission denied". Restore it on the copied tree.
+    chmod +x "$$BUILD_DIR/libvpx/configure"
 
     mkdir -p "$$BUILD_DIR/Public/libvpx"
 
