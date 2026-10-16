@@ -81,7 +81,10 @@ genrule(
     # The vendored libvpx/configure is stored in git with mode 100644
     # (no exec bit), and cp -R keeps it that way, so the genrule dies with
     # "configure: Permission denied". Restore it on the copied tree.
-    chmod +x "$$BUILD_DIR/libvpx/configure"
+    # Many vendored libvpx files lost their exec bit in this fork (configure,
+    # build/make/rtcd.pl, ...), and cp -R keeps them non-executable, so restore
+    # the bit on the whole copied tree.
+    chmod -R +x "$$BUILD_DIR/libvpx"
 
     mkdir -p "$$BUILD_DIR/Public/libvpx"
 
