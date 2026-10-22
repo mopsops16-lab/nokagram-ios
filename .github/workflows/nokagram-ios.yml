@@ -75,9 +75,14 @@ jobs:
           OUTPUT_PATH="build/artifacts"
           rm -rf "$OUTPUT_PATH"
           mkdir -p "$OUTPUT_PATH"
-          for f in bazel-out/applebin_ios-ios_arm*-opt-ST-*/bin/Telegram/Telegram.ipa; do
-            cp "$f" "$OUTPUT_PATH/NokaGram.ipa"
-          done
+          # bazel-bin/Telegram/Telegram.ipa is the stable symlink path; the old
+          # applebin_* glob can be empty depending on the output base layout.
+          if [ ! -f bazel-bin/Telegram/Telegram.ipa ]; then
+            echo "bazel-bin/Telegram/Telegram.ipa is missing; listing candidates:"
+            ls -la bazel-bin/Telegram/ | tail -n 20
+            exit 1
+          fi
+          cp bazel-bin/Telegram/Telegram.ipa "$OUTPUT_PATH/NokaGram.ipa"
 
       - name: Upload IPA artifact.
         uses: actions/upload-artifact@v4
