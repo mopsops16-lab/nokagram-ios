@@ -62,6 +62,16 @@ ABSL_CONST_INIT thread_local bool mutex_locked = false;
 @synthesize ignoresPreferredAttributeConfigurationErrors =
     _ignoresPreferredAttributeConfigurationErrors;
 
+static std::atomic<bool> gRTCAudioSessionLegacyDeactivationEnabled{false};
+
++ (void)setLegacyDeactivationEnabled:(BOOL)enabled {
+  gRTCAudioSessionLegacyDeactivationEnabled.store(enabled ? true : false);
+}
+
++ (BOOL)legacyDeactivationEnabled {
+  return gRTCAudioSessionLegacyDeactivationEnabled.load() ? YES : NO;
+}
+
 + (instancetype)sharedInstance {
   static dispatch_once_t onceToken;
   static RTC_OBJC_TYPE(RTCAudioSession) *sharedInstance = nil;

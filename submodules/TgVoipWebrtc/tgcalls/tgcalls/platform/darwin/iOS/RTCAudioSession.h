@@ -200,6 +200,13 @@ RTC_OBJC_EXPORT
 + (instancetype)sharedInstance;
 - (instancetype)init NS_UNAVAILABLE;
 
+/** Telegram: when YES, the stock WebRTC session deactivation behaviour may be
+ *  used. NO by default: in this app activation is owned by CallKit and
+ *  ManagedAudioSession, and deactivating a CallKit session mid-call silenced
+ *  the call. */
++ (void)setLegacyDeactivationEnabled:(BOOL)enabled;
++ (BOOL)legacyDeactivationEnabled;
+
 /** Adds a delegate, which is held weakly. */
 - (void)addDelegate:(id<RTC_OBJC_TYPE(RTCAudioSessionDelegate)>)delegate;
 /** Removes an added delegate. */
