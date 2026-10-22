@@ -211,7 +211,7 @@ genrule(
 
         cp -R "submodules/ffmpeg/Sources/FFMpeg" "$$SOURCE_PATH"
 
-        find "$$SOURCE_PATH" -type f \( -name '*.sh' -o -name '*.pl' \) -exec chmod +x {} +
+        find "$$SOURCE_PATH" -type f \\( -name '*.sh' -o -name '*.pl' \\) -exec chmod +x {} +
         chmod +x "$$SOURCE_PATH/build-ffmpeg-bazel.sh" "$$SOURCE_PATH/pkg-config" "$$SOURCE_PATH/gas-preprocessor.pl" || true
 
         mkdir "$$SOURCE_PATH/libvpx"
