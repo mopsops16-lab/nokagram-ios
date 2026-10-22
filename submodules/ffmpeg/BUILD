@@ -213,6 +213,8 @@ genrule(
 
         find "$$SOURCE_PATH" -type f \\( -name '*.sh' -o -name '*.pl' \\) -exec chmod +x {} +
         chmod +x "$$SOURCE_PATH/build-ffmpeg-bazel.sh" "$$SOURCE_PATH/pkg-config" "$$SOURCE_PATH/gas-preprocessor.pl" || true
+        chmod +x "$$SOURCE_PATH/ffmpeg-8.1.2/configure" || true
+        chmod +x "$$SOURCE_PATH/ffmpeg-8.1.2"/ffbuild/*.sh 2>/dev/null || true
 
         mkdir "$$SOURCE_PATH/libvpx"
         mkdir -p "$$SOURCE_PATH/libvpx/include/vpx"
